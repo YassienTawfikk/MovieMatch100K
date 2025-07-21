@@ -1,13 +1,16 @@
 import src
-from src import data_setup as data_setup
+from src.data_setup import download_dataset, data_preprocessing, split_data
 
 
 def main():
     print("Downloading MovieLens 100K from KaggleHub...")
-    data_setup.download_dataset()
+    download_dataset()
 
     print("Preprocessing Dataset...")
-    data_setup.data_preprocessing()
+    data_preprocessing()
+
+    print("Splitting Dataset...")
+    split_data()
 
 
 if __name__ == "__main__":
