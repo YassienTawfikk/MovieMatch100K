@@ -20,7 +20,7 @@ def download_dataset(dest_folder="../data/raw"):
         dst_file = os.path.join(dest_folder, filename)
         shutil.copy2(src_file, dst_file)
 
-    print(f"✅ Dataset successfully copied to: {dest_folder}")
+    print(f"Dataset successfully copied to: {dest_folder}")
     return dest_folder
 
 
