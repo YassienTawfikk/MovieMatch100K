@@ -2,6 +2,7 @@ import kagglehub
 from pathlib import Path
 import shutil
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 def download_dataset(dest_folder=Path("data/raw")):
@@ -59,3 +60,16 @@ def data_preprocessing():
     genres = pd.read_csv(raw_dir / "u.genre", sep='|', header=None, names=["genre", "genre_id"])
     genres.to_csv(processed_dir / "genres.csv", index=False)
 
+
+def split_data(test_size=0.2, random_state=42):
+    processed_dir = Path("data/processed")
+    curated_dir = Path("data/curated")
+
+    ratings = pd.read_csv(processed_dir / "ratings.csv")
+
+    train, test = train_test_split(ratings, test_size=test_size, random_state=random_state)
+
+    train.to_csv(curated_dir / "train.csv", index=False)
+    test.to_csv(curated_dir / "test.csv", index=False)
+
+    return train, test
