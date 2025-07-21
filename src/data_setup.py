@@ -5,8 +5,6 @@ import pandas as pd
 
 
 def download_dataset(dest_folder=Path("data/raw")):
-    print("Downloading MovieLens 100K from KaggleHub...")
-
     # Download and get dataset path
     dataset_path = Path(kagglehub.dataset_download("prajitdatta/movielens-100k-dataset"))
     dataset_subfolder = dataset_path / "ml-100k"
@@ -23,13 +21,10 @@ def download_dataset(dest_folder=Path("data/raw")):
         if file.is_file():
             shutil.copy2(file, dest_folder / file.name)
 
-    print(f"Dataset successfully copied to: {dest_folder.resolve()}")
     return dest_folder
 
 
 def data_preprocessing():
-    print("Starting data preprocessing...")
-
     raw_dir = Path("data/raw")
     processed_dir = Path("data/processed")
     processed_dir.mkdir(parents=True, exist_ok=True)
@@ -64,4 +59,3 @@ def data_preprocessing():
     genres = pd.read_csv(raw_dir / "u.genre", sep='|', header=None, names=["genre", "genre_id"])
     genres.to_csv(processed_dir / "genres.csv", index=False)
 
-    print("Data preprocessing completed.")
