@@ -34,6 +34,7 @@ def data_preprocessing():
         raw_dir / "u.data", sep='\t', header=None,
         names=["user_id", "item_id", "rating", "timestamp"]
     )
+    ratings = ratings.drop(columns=["timestamp"])
     ratings.to_csv(processed_dir / "ratings.csv", index=False)
 
     movie_columns = [
