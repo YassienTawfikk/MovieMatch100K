@@ -4,6 +4,7 @@ from pathlib import Path
 paths = [
     Path("data/raw"),
     Path("data/processed"),
+    Path("data/curated"),
     Path("outputs")
 ]
 
