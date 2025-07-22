@@ -48,3 +48,40 @@ def evaluate_precision_at_k(test_df, train_df, user_item_matrix, similarity_matr
             precisions.append(prec)
 
     return np.mean(precisions) if precisions else 0.0
+
+
+def evaluate_recall_at_k(test_df, train_df, user_item_matrix, similarity_matrix, k=5, top_n_neighbors=50):
+    """
+    Compute Recall@K for all users in the test set.
+    """
+
+    user_ids = test_df["user_id"].unique()
+    recalls = []
+
+    for user_id in user_ids:
+        if user_id not in user_item_matrix.index:
+            continue  # skip cold-start users
+
+        # Ground truth: what this user actually rated in test set
+        relevant_items = test_df[test_df["user_id"] == user_id]["item_id"].tolist()
+
+        # Generate top-K predictions
+        top_k_predicted = get_top_k_recommendations(
+            user_id=user_id,
+            ratings=train_df,
+            user_item_matrix=user_item_matrix,
+            similarity_matrix=similarity_matrix,
+            k=k,
+            top_n_neighbors=top_n_neighbors
+        )
+
+        recommended_items = [item for item, _ in top_k_predicted]
+
+        # Compute recall
+        hits = len(set(recommended_items) & set(relevant_items))
+        possible = len(relevant_items)
+        if possible > 0:
+            recall = hits / possible
+            recalls.append(recall)
+
+    return sum(recalls) / len(recalls) if recalls else 0.0
