@@ -2,7 +2,6 @@ import kagglehub
 from pathlib import Path
 import shutil
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
 
 def download_dataset(dest_folder=Path("data/raw")):
@@ -62,15 +61,41 @@ def data_preprocessing():
     genres.to_csv(processed_dir / "genres.csv", index=False)
 
 
-def split_data(test_size=0.2, random_state=42):
+def split_data(test_ratio=0.2, min_ratings=5, random_state=42):
+    def split_per_user(df, test_ratio=0.2, min_ratings=5):
+        train_rows = []
+        test_rows = []
+
+        for user_id, group in df.groupby("user_id"):
+            if len(group) < min_ratings:
+                # Not enough ratings → all go to train
+                train_rows.extend(group.to_dict("records"))
+            else:
+                test_count = max(1, int(len(group) * test_ratio))
+                test_sample = group.sample(test_count, random_state=random_state)
+                train_sample = group.drop(test_sample.index)
+
+                test_rows.extend(test_sample.to_dict("records"))
+                train_rows.extend(train_sample.to_dict("records"))
+
+        train_df = pd.DataFrame(train_rows)
+        test_df = pd.DataFrame(test_rows)
+        return train_df, test_df
+
+    # --- Paths ---
     processed_dir = Path("data/processed")
     curated_dir = Path("data/curated")
+    curated_dir.mkdir(parents=True, exist_ok=True)
 
+    # --- Load full dataset ---
     ratings = pd.read_csv(processed_dir / "ratings.csv")
 
-    train, test = train_test_split(ratings, test_size=test_size, random_state=random_state)
+    # --- Perform smart split ---
+    train_df, test_df = split_per_user(ratings, test_ratio=test_ratio, min_ratings=min_ratings)
 
-    train.to_csv(curated_dir / "train.csv", index=False)
-    test.to_csv(curated_dir / "test.csv", index=False)
+    # --- Save ---
+    train_df.to_csv(curated_dir / "train.csv", index=False)
+    test_df.to_csv(curated_dir / "test.csv", index=False)
 
-    return train, test
+    print("✅ Per-user stratified split complete.")
+    return train_df, test_df
