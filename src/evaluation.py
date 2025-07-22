@@ -1,0 +1,50 @@
+import pandas as pd
+import numpy as np
+from src.user_cf import get_top_k_recommendations
+
+
+def precision_at_k(actual_items, predicted_items, k=5):
+    """
+    Compute Precision@K for a single user.
+    actual_items: set of true items the user interacted with in test set
+    predicted_items: list of recommended item_ids
+    """
+    if not actual_items:
+        return np.nan  # Skip users with no actual items
+
+    hits = [item for item in predicted_items[:k] if item in actual_items]
+    return len(hits) / k
+
+
+def evaluate_precision_at_k(test_df, train_df, user_item_matrix, similarity_matrix, k=5):
+    """
+    Evaluate average Precision@K across all users in the test set.
+    """
+    precisions = []
+
+    test_users = test_df["user_id"].unique()
+
+    for user_id in test_users:
+        # Get actual movies the user rated in test set
+        actual_items = set(test_df[test_df["user_id"] == user_id]["item_id"].tolist())
+
+        # Skip users who don’t exist in training
+        if user_id not in user_item_matrix.index:
+            continue
+
+        # Get recommendations
+        top_k_recs = get_top_k_recommendations(
+            user_id=user_id,
+            ratings=train_df,
+            user_item_matrix=user_item_matrix,
+            similarity_matrix=similarity_matrix,
+            k=k
+        )
+
+        predicted_items = [item for item, _ in top_k_recs]
+        prec = precision_at_k(actual_items, predicted_items, k=k)
+
+        if not np.isnan(prec):
+            precisions.append(prec)
+
+    return np.mean(precisions) if precisions else 0.0
