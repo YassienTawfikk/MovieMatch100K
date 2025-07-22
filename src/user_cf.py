@@ -52,7 +52,7 @@ def get_top_k_recommendations(user_id, ratings, user_item_matrix, similarity_mat
     return top_k
 
 
-def recommend_for_user(user_id, ratings_df=pd.read_csv("data/curated/train.csv"), k=5, top_n_neighbors=50):
+def recommend_for_user(user_id, ratings_df=None, k=5, top_n_neighbors=50):
     """
     Full pipeline: build matrix → similarity → recommend for one user.
 
@@ -65,13 +65,17 @@ def recommend_for_user(user_id, ratings_df=pd.read_csv("data/curated/train.csv")
     Returns:
         List of (item_id, predicted_rating) tuples
     """
+
+    if ratings_df is None:
+        ratings_df = pd.read_csv("data/curated/train.csv")
+
     user_item_matrix = build_user_item_matrix(ratings_df)
     similarity_matrix = compute_user_similarity(user_item_matrix)
 
     if user_id not in user_item_matrix.index:
         raise ValueError(f"User ID {user_id} not found in training data.")
 
-    return get_top_k_recommendations(
+    top_k = get_top_k_recommendations(
         user_id=user_id,
         ratings=ratings_df,
         user_item_matrix=user_item_matrix,
@@ -79,3 +83,4 @@ def recommend_for_user(user_id, ratings_df=pd.read_csv("data/curated/train.csv")
         k=k,
         top_n_neighbors=top_n_neighbors
     )
+    return top_k, user_item_matrix, similarity_matrix
