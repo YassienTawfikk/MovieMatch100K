@@ -52,7 +52,7 @@ def get_top_k_recommendations(user_id, ratings, user_item_matrix, similarity_mat
     return top_k
 
 
-def recommend_for_user(user_id, ratings_df, k=5, top_n_neighbors=50):
+def recommend_for_user(user_id, ratings_df=pd.read_csv("data/curated/train.csv"), k=5, top_n_neighbors=50):
     """
     Full pipeline: build matrix → similarity → recommend for one user.
 
