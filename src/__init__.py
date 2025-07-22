@@ -5,7 +5,6 @@ paths = [
     Path("data/raw"),
     Path("data/processed"),
     Path("data/curated"),
-    Path("outputs")
 ]
 
 for path in paths:
