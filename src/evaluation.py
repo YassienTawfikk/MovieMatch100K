@@ -85,3 +85,32 @@ def evaluate_recall_at_k(test_df, train_df, user_item_matrix, similarity_matrix,
             recalls.append(recall)
 
     return sum(recalls) / len(recalls) if recalls else 0.0
+
+
+def evaluate_recommendation(test_df=None, train_df=None, user_item_matrix=None, similarity_matrix=None, k=5,
+                            top_n_neighbors=50):
+    if test_df is None:
+        test_df = pd.read_csv("data/curated/test.csv")
+    if train_df is None:
+        train_df = pd.read_csv("data/curated/train.csv")
+
+    precision = evaluate_precision_at_k(
+        test_df=test_df,
+        train_df=train_df,
+        user_item_matrix=user_item_matrix,
+        similarity_matrix=similarity_matrix,
+        k=k
+    )
+
+    print(f"Average Precision@{k}: {precision * 100:.4f}%")
+
+    recall = evaluate_recall_at_k(
+        test_df=test_df,
+        train_df=train_df,
+        user_item_matrix=user_item_matrix,
+        similarity_matrix=similarity_matrix,
+        k=k,
+        top_n_neighbors=50
+    )
+
+    print(f"Average Recall@{k}: {recall * 100:.4f}%")
