@@ -50,3 +50,32 @@ def get_top_k_recommendations(user_id, ratings, user_item_matrix, similarity_mat
     # Return top-K predicted items
     top_k = sorted(predictions.items(), key=lambda x: x[1], reverse=True)[:k]
     return top_k
+
+
+def recommend_for_user(user_id, ratings_df, k=5, top_n_neighbors=50):
+    """
+    Full pipeline: build matrix → similarity → recommend for one user.
+
+    Parameters:
+        user_id: target user ID (int)
+        ratings_df: full ratings DataFrame (train)
+        k: number of items to recommend
+        top_n_neighbors: number of similar users to consider
+
+    Returns:
+        List of (item_id, predicted_rating) tuples
+    """
+    user_item_matrix = build_user_item_matrix(ratings_df)
+    similarity_matrix = compute_user_similarity(user_item_matrix)
+
+    if user_id not in user_item_matrix.index:
+        raise ValueError(f"User ID {user_id} not found in training data.")
+
+    return get_top_k_recommendations(
+        user_id=user_id,
+        ratings=ratings_df,
+        user_item_matrix=user_item_matrix,
+        similarity_matrix=similarity_matrix,
+        k=k,
+        top_n_neighbors=top_n_neighbors
+    )
