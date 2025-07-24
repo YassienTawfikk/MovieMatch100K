@@ -1,45 +1,72 @@
-import src
-from src.data_setup import download_dataset, data_preprocessing, split_data
-from src.user_cf import recommend_for_user
-from src.evaluation import evaluate_recommendation
 import pandas as pd
+from src.data_setup import download_dataset, data_preprocessing, split_data
+from src.user_cf import run_user_cf_pipeline
+from src.item_cf import run_item_cf_pipeline
+from src.evaluation import evaluate_recommendation_user_cf, evaluate_recommendation_item_cf
 
 
-def main():
-    print("Downloading MovieLens 100K from KaggleHub...")
+def main(method="user", evaluate=True, k_movies=5):  # ← Added evaluate flag
+    # Step 1: Prepare data
+    print("🔽 Downloading MovieLens 100K from KaggleHub...")
     download_dataset()
 
-    print("Preprocessing Dataset...")
+    print("🧹 Preprocessing dataset...")
     data_preprocessing()
 
-    print("Splitting Dataset...")
+    print("✂️ Splitting dataset into train/test sets...")
     split_data()
 
-    # # Choose a user to recommend for
-    # target_user_id = 13
-    # k_movies = 5
-    # print(f"Generating recommendations for user {target_user_id}...")
-    #
-    # # Get recommendations + matrices once
-    # top_recs, user_item_matrix, similarity_matrix = recommend_for_user(
-    #     user_id=target_user_id,
-    #     k=k_movies,
-    #     top_n_neighbors=50
-    # )
-    #
-    # print(f"Top 5 recommendations for user {target_user_id}:")
-    # for item_id, score in top_recs:
-    #     print(f"Movie ID {item_id} → Predicted Rating: {score:.2f}")
-    #
-    # print("Evaluating model (This may take 3–5 mins)...")
-    #
-    # evaluate_recommendation(
-    #     user_item_matrix=user_item_matrix,
-    #     similarity_matrix=similarity_matrix,
-    #     k=k_movies,
-    #     top_n_neighbors=50
-    # )
+    # Step 2: Setup
+    target_user_id = 13
+    top_n_neighbors = 50
+
+    if method == "user":
+        print(f"\n📡 Running User-Based CF for user {target_user_id}...")
+        top_recs_user, user_item_matrix, user_similarity_matrix = run_user_cf_pipeline(
+            user_id=target_user_id,
+            k=k_movies,
+            top_n_neighbors=top_n_neighbors
+        )
+
+        print(f"🎯 Top {k_movies} User-Based Recommendations for User {target_user_id}:")
+        for item_id, score in top_recs_user:
+            print(f"  → Movie ID {item_id} | Predicted Rating: {score:.2f}")
+
+        if evaluate:
+            print("\n📈 Evaluating User-Based CF Model...")
+            evaluate_recommendation_user_cf(
+                user_item_matrix=user_item_matrix,
+                similarity_matrix=user_similarity_matrix,
+                k=k_movies,
+                top_n_neighbors=top_n_neighbors
+            )
+
+    elif method == "item":
+        print(f"\n🎞️ Running Item-Based CF for user {target_user_id}...")
+        train_df = pd.read_csv("data/curated/train.csv")
+        top_recs_item, item_similarity_matrix = run_item_cf_pipeline(
+            user_id=target_user_id,
+            ratings_df=train_df,
+            k=k_movies
+        )
+
+        print(f"🎯 Top {k_movies} Item-Based Recommendations for User {target_user_id}:")
+        for item_id, score in top_recs_item:
+            print(f"  → Movie ID {item_id} | Predicted Score: {score:.2f}")
+
+        if evaluate:
+            print("\n📈 Evaluating Item-Based CF Model...")
+            user_item_matrix = train_df.pivot(index="user_id", columns="item_id", values="rating").fillna(0)
+            evaluate_recommendation_item_cf(
+                user_item_matrix=user_item_matrix,
+                item_similarity_matrix=item_similarity_matrix,
+                k=k_movies
+            )
+
+    else:
+        print("❌ Invalid method! Please choose 'user' or 'item'.")
 
 
 if __name__ == "__main__":
-    main()
+    # Run as main(method="user", evaluate=False) to skip evaluation
+    main(method="item", evaluate=True, k_movies=5)
