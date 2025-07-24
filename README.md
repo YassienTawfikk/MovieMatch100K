@@ -1,10 +1,10 @@
-![MovieMatch100K Poster](https://github.com/user-attachments/assets/aefb7612-a9ea-4360-aafe-6a563bd98a99)
-
 # MovieMatch100K
 
 > MovieMatch100K is a modular recommendation system built using the MovieLens 100K dataset. It explores multiple collaborative filtering techniques with evaluation metrics to measure their practical performance.
 
 > This project was developed as part of the Elevvo AI Internship, focusing on hands-on implementation, comparison, and evaluation of recommender system models.
+
+<img width="2000" height="1600" alt="Poster - MovieMatch100K Recommendation System" src="https://github.com/user-attachments/assets/c38c9ead-11d9-4615-9a10-380d56baadcd" />
 
 ---
 
