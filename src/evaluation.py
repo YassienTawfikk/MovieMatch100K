@@ -1,9 +1,11 @@
 import pandas as pd
 import numpy as np
+
+from src.item_cf import recommend_for_user_itemcf
 from src.user_cf import get_top_k_recommendations
 
 
-def precision_at_k(actual_items, predicted_items, k=5):
+def precision_at_k_user_cf(actual_items, predicted_items, k=5):
     """
     Compute Precision@K for a single user.
     actual_items: set of true items the user interacted with in test set
@@ -16,7 +18,7 @@ def precision_at_k(actual_items, predicted_items, k=5):
     return len(hits) / k
 
 
-def evaluate_precision_at_k(test_df, train_df, user_item_matrix, similarity_matrix, k=5):
+def evaluate_precision_at_k_user_cf(test_df, train_df, user_item_matrix, similarity_matrix, k=5):
     """
     Evaluate average Precision@K across all users in the test set.
     """
@@ -42,7 +44,7 @@ def evaluate_precision_at_k(test_df, train_df, user_item_matrix, similarity_matr
         )
 
         predicted_items = [item for item, _ in top_k_recs]
-        prec = precision_at_k(actual_items, predicted_items, k=k)
+        prec = precision_at_k_user_cf(actual_items, predicted_items, k=k)
 
         if not np.isnan(prec):
             precisions.append(prec)
@@ -50,7 +52,7 @@ def evaluate_precision_at_k(test_df, train_df, user_item_matrix, similarity_matr
     return np.mean(precisions) if precisions else 0.0
 
 
-def evaluate_recall_at_k(test_df, train_df, user_item_matrix, similarity_matrix, k=5, top_n_neighbors=50):
+def evaluate_recall_at_k_user_cf(test_df, train_df, user_item_matrix, similarity_matrix, k=5, top_n_neighbors=50):
     """
     Compute Recall@K for all users in the test set.
     """
@@ -94,23 +96,12 @@ def evaluate_recommendation(test_df=None, train_df=None, user_item_matrix=None, 
     if train_df is None:
         train_df = pd.read_csv("data/curated/train.csv")
 
-    precision = evaluate_precision_at_k(
-        test_df=test_df,
-        train_df=train_df,
-        user_item_matrix=user_item_matrix,
-        similarity_matrix=similarity_matrix,
-        k=k
-    )
+    precision = evaluate_precision_at_k_user_cf(test_df=test_df, train_df=train_df, user_item_matrix=user_item_matrix,
+                                                similarity_matrix=similarity_matrix, k=k)
 
     print(f"Average Precision@{k}: {precision * 100:.4f}%")
 
-    recall = evaluate_recall_at_k(
-        test_df=test_df,
-        train_df=train_df,
-        user_item_matrix=user_item_matrix,
-        similarity_matrix=similarity_matrix,
-        k=k,
-        top_n_neighbors=50
-    )
+    recall = evaluate_recall_at_k_user_cf(test_df=test_df, train_df=train_df, user_item_matrix=user_item_matrix,
+                                          similarity_matrix=similarity_matrix, k=k, top_n_neighbors=50)
 
     print(f"Average Recall@{k}: {recall * 100:.4f}%")
