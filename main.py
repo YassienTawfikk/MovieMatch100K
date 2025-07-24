@@ -2,10 +2,15 @@ import pandas as pd
 from src.data_setup import download_dataset, data_preprocessing, split_data
 from src.user_cf import run_user_cf_pipeline
 from src.item_cf import run_item_cf_pipeline
-from src.evaluation import evaluate_recommendation_user_cf, evaluate_recommendation_item_cf
+from src.svd import run_svd_pipeline  # ✅ Import SVD pipeline
+from src.evaluation import (
+    evaluate_recommendation_user_cf,
+    evaluate_recommendation_item_cf,
+    evaluate_recommendation_svd  # ✅ Import SVD evaluation
+)
 
 
-def main(method="user", evaluate=True, k_movies=5):  # ← Added evaluate flag
+def main(method="user", evaluate=True, k_movies=5):
     # Step 1: Prepare data
     print("🔽 Downloading MovieLens 100K from KaggleHub...")
     download_dataset()
@@ -63,10 +68,38 @@ def main(method="user", evaluate=True, k_movies=5):  # ← Added evaluate flag
                 k=k_movies
             )
 
+
+    elif method == "svd":
+
+        print(f"\n🧠 Running SVD for user {target_user_id}...")
+
+        top_recs_svd, user_factors, item_factors, user_item_matrix = run_svd_pipeline(
+
+            user_id=target_user_id,
+
+            k=k_movies
+
+        )
+
+        print(f"🎯 Top {k_movies} SVD-Based Recommendations for User {target_user_id}:")
+
+        for item_id, score in top_recs_svd:
+            print(f"  → Movie ID {item_id} | Predicted Rating: {score:.2f}")
+
+        if evaluate:
+            print("\n📈 Evaluating SVD Model...")
+
+            evaluate_recommendation_svd(
+                user_factors=user_factors,
+                item_factors=item_factors,
+                user_item_matrix=user_item_matrix,
+                k=k_movies
+            )
     else:
-        print("❌ Invalid method! Please choose 'user' or 'item'.")
+        print("❌ Invalid method! Please choose 'user', 'item', or 'svd'.")
 
 
 if __name__ == "__main__":
     # Run as main(method="user", evaluate=False) to skip evaluation
-    main(method="item", evaluate=True, k_movies=5)
+
+    main(method="svd", evaluate=True, k_movies=5)
