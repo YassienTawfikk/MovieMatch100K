@@ -22,7 +22,7 @@ Each method predicts top-k movie recommendations for a user and can optionally b
 
 ## Dataset
 
-- **Source**: [MovieLens 100K Dataset](https://grouplens.org/datasets/movielens/100k/)
+- **Source**: [MovieLens 100K Dataset](https://www.kaggle.com/datasets/prajitdatta/movielens-100k-dataset)
 - 943 users, 1682 movies
 - Ratings range: 1 to 5
 - Additional metadata (titles, genres) is used to display recommendations more clearly
