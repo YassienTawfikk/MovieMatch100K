@@ -4,7 +4,9 @@
 
 > This project was developed as part of the Elevvo AI Internship, focusing on hands-on implementation, comparison, and evaluation of recommender system models.
 
-<img width="1024" height="1536" alt="20250725_1533_Futuristic Movie Interface_simple_compose_01k10s2b3xergrz9ht8vfe72pn" src="https://github.com/user-attachments/assets/c3fc5505-8734-40fe-b995-baa4d1cdac39" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c3fc5505-8734-40fe-b995-baa4d1cdac39" alt="Futuristic Movie Interface" width="800" />
+</p>
 
 ---
 
