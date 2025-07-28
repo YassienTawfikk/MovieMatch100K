@@ -1,7 +1,7 @@
 from pathlib import Path
 
 # Base directory relative to the current script's file location
-base_dir = Path(__file__).resolve().parent
+base_dir = Path(__file__).resolve().parents[1]
 
 # Define subdirectories relative to the script's location
 paths = [
